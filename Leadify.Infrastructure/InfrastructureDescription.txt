@@ -1,0 +1,269 @@
+﻿Infrastructure/
+├── Persistence/           # DbContext, migraciones, configuraciones EF
+│   └── AppDbContext.cs
+├── Repositories/          # Implementaciones de repositorios reales (EF)
+│   └── VehicleRepository.cs
+├── FileStorage/           # Para subir imágenes a Supabase Storage (si usás)
+│   └── SupabaseFileStorage.cs
+├── Email/                 # Para mandar mails
+│   └── SmtpEmailSender.cs
+├── Sms/                   # Si usás SMS
+│   └── TwilioSmsSender.cs
+├── ApiClients/            # Si conectás con APIs externas (MercadoPago, etc.)
+│   └── MercadoPagoClient.cs
+├── Services/              # SystemClock, generadores, helpers técnicos
+│   └── SystemClock.cs
+└── DependencyInjection/   # AddInfrastructure()
+    └── DependencyInjection.cs
+
+
+
+Persistence
+
+         Qué va acá:
+
+        - AppDbContext.cs
+
+        - Configuraciones de EF Core
+
+        - Migrations (si están en el mismo proyecto)
+
+        Ejemplo:
+
+       
+        public class AppDbContext : DbContext
+        {
+            public DbSet<Vehicle> Vehicles => Set<Vehicle>();
+            public DbSet<User> Users => Set<User>();
+            public DbSet<Dealership> Dealerships => Set<Dealership>();
+
+            public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
+        }		
+
+
+Repositories
+
+        Qué va acá:
+
+        Implementaciones de interfaces definidas en Core/Interfaces/
+
+
+        Ej:
+
+        public class VehicleRepository : IVehicleRepository
+        {
+            private readonly AppDbContext _db;
+            public VehicleRepository(AppDbContext db) => _db = db;
+
+            public async Task AddAsync(Vehicle vehicle)
+            {
+                _db.Vehicles.Add(vehicle);
+                await _db.SaveChangesAsync();
+            }
+
+            public async Task<List<Vehicle>> GetByDealership(Guid dealershipId)
+            {
+                return await _db.Vehicles.Where(v => v.DealershipId == dealershipId).ToListAsync();
+            }
+        }
+
+CachedRepositories (Dudo que se implemente aca)
+ 
+
+            Qué va acá:
+
+            Decoradores para agregar caching a un repo real
+
+            Ejemplo:
+
+            public class CachedVehicleRepository : IVehicleRepository
+            {
+                private readonly IVehicleRepository _inner;
+                private readonly IMemoryCache _cache;
+
+                public CachedVehicleRepository(IVehicleRepository inner, IMemoryCache cache)
+                {
+                    _inner = inner;
+                    _cache = cache;
+                }
+
+                public async Task<List<Vehicle>> GetByDealership(Guid id)
+                {
+                    return await _cache.GetOrCreateAsync($"vehicles_{id}", _ => _inner.GetByDealership(id));
+                }
+            }
+
+
+ApiClients
+
+
+            Qué va acá:
+
+            Servicios que hacen llamadas HTTP a APIs externas (por ejemplo: API de MercadoPago, DNRPA, etc.)
+
+            Ejemplo:
+
+            public class MercadoPagoClient
+            {
+                private readonly HttpClient _http;
+
+                public MercadoPagoClient(HttpClient http) => _http = http;
+
+                public async Task<string> GetTokenAsync()
+                {
+                    var response = await _http.PostAsync("/oauth/token", ...);
+                    return await response.Content.ReadAsStringAsync();
+                }
+            }
+
+
+Email
+
+
+
+            Qué va acá:
+
+            Implementación de un IEmailSender
+
+            Ejemplo:
+
+            public class SmtpEmailSender : IEmailSender
+            {
+                public Task SendAsync(string to, string subject, string body)
+                {
+                    // usar SMTP client o SendGrid, Mailgun, etc.
+                    return Task.CompletedTask;
+                }
+            }
+
+
+FileStorage
+
+
+            Qué va acá:
+
+            Subidas o lecturas de archivos al sistema (por ejemplo, fotos de autos)
+
+            Ejemplo:
+
+
+            public class LocalFileStorage : IFileStorage
+            {
+                public Task SaveAsync(Stream file, string path)
+                {
+                    using var fs = new FileStream(path, FileMode.Create);
+                    file.CopyTo(fs);
+                    return Task.CompletedTask;
+                }
+            }
+
+
+
+PostgresStorage
+
+            En vez de tener una carpeta tipo AzureStorage/, vos podrías crear algo como PostgresStorage/ solo si tuvieras lógica especial para interactuar con PostgreSQL más allá de EF Core, cosa que no suele pasar.
+
+            Pero como estás usando EF Core, NO necesitás una carpeta PostgresStorage/. El acceso a PostgreSQL ya lo manejás desde:
+
+            AppDbContext → en Persistence/
+
+            tus Repositories → en Repositories/
+
+            ✅ Conclusión: no crees PostgresStorage/
+            En su lugar, usá esto:
+            bash
+            Copiar
+            Editar
+            Infrastructure/
+            ├── Persistence/           # DbContext, migraciones, configuraciones EF
+            │   └── AppDbContext.cs
+            ├── Repositories/          # Implementaciones de repositorios reales (EF)
+            │   └── VehicleRepository.cs
+            ├── FileStorage/           # Para subir imágenes a Supabase Storage (si usás)
+            │   └── SupabaseFileStorage.cs
+            ├── Email/                 # Para mandar mails
+            │   └── SmtpEmailSender.cs
+            ├── Sms/                   # Si usás SMS
+            │   └── TwilioSmsSender.cs
+            ├── ApiClients/            # Si conectás con APIs externas (MercadoPago, etc.)
+            │   └── MercadoPagoClient.cs
+            ├── Services/              # SystemClock, generadores, helpers técnicos
+            │   └── SystemClock.cs
+            └── DependencyInjection/   # AddInfrastructure()
+                └── DependencyInjection.cs
+            💡 ¿Cuándo tendría sentido una carpeta PostgresStorage/?
+            Solo si vos quisieras hacer cosas custom con PostgreSQL, tipo:
+
+            Llamar funciones SQL a mano
+
+            Ejecutar queries RAW
+
+            Usar Npgsql directamente sin EF Core
+
+            Manejar archivos binarios dentro de la DB
+
+            Pero vos ya usás EF Core, así que toda la lógica relacionada a Postgres ya está bien encapsulada en AppDbContext y los repos.
+
+
+Services
+
+            Qué va acá:
+
+            Servicios técnicos genéricos (ej: obtener hora del sistema, generar UUID, etc.)
+
+            Ejemplo:
+
+
+            public class SystemClock : ISystemClock
+            {
+                public DateTime Now => DateTime.UtcNow;
+            }
+
+
+
+DependencyInjection
+
+            Qué va acá:
+
+            Extension methods para registrar servicios
+
+            Ejemplo:
+
+
+            public static class DependencyInjection
+            {
+                public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
+                {
+                    services.AddDbContext<AppDbContext>(...);
+                    services.AddScoped<IVehicleRepository, VehicleRepository>();
+                    services.AddScoped<IEmailSender, SmtpEmailSender>();
+                    services.AddSingleton<ISystemClock, SystemClock>();
+
+                    return services;
+                }
+
+
+            }
+
+            Y se usa en Program.cs
+            builder.Services.AddInfrastructure(builder.Configuration);
+
+
+
+Interfaces
+
+
+
+            Todas las interfaces que las implementaciones anteriores usan, deben definirse en la capa Core, por ejemplo:
+
+            IVehicleRepository
+
+            IEmailSender
+
+            ISystemClock
+
+            ISmsSender
+
+            IFileStorage
+
+            Así Infrastructure puede depender de Core, pero nunca al revés. Esa es la regla principal de Clean Architecture.

@@ -1,0 +1,131 @@
+﻿API/
+├── Endpoints/              # (Si usás Minimal APIs en vez de Controllers)
+├── Controllers/            # Web API Controllers tradicionales (MVC)
+├── Models/                 # API Models: DTOs para request/response
+├── ViewModels/             # Datos que se muestran al usuario, más enfocados a UI
+├── Filters/                # Filtros de acción globales/personalizados
+├── ModelBinders/           # Binder custom si necesitás parsear cosas raras
+├── TagHelpers/             # (Más para apps Razor, no APIs — podés ignorar)
+├── Middleware/             # Middlewares custom (ej: manejo de errores)
+├── CompositionRoot/        # Donde se inicia y configura todo (Program.cs)
+├── Services/               # Servicios auxiliares de capa API (ej: JWT creator)
+└── Interfaces/             # Interfaces propias de la capa API (pocas veces)
+
+
+
+Controllers
+
+
+            Controladores API estilo tradicional (ApiController)
+
+            Uno por entidad o funcionalidad
+
+            Ejemplo:
+
+
+            [ApiController]
+            [Route("api/[controller]")]
+            public class VehiclesController : ControllerBase
+            {
+                [HttpPost]
+                public async Task<IActionResult> Add(AddVehicleRequest request) { ... }
+            }
+
+
+
+Models (o ApiModels/)
+
+            DTOs que viajan entre el frontend y el backend
+
+            Incluye requests y responses
+
+            Ejemplo:
+
+
+            public class AddVehicleRequest
+            {
+                public string Title { get; set; }
+                public decimal Price { get; set; }
+                public Guid BrandId { get; set; }
+            }
+
+
+
+Filters
+
+        Filtros globales o por controlador (ej: Authorize, ValidateModel)
+
+        Ejemplo:
+
+        public class ValidateModelFilter : IActionFilter
+        {
+            public void OnActionExecuting(ActionExecutingContext context)
+            {
+                if (!context.ModelState.IsValid)
+                    context.Result = new BadRequestObjectResult(context.ModelState);
+            }
+
+            public void OnActionExecuted(ActionExecutedContext context) {}
+        }
+
+
+
+ModelBinders
+
+            Si necesitás bindear inputs raros (ej: tipo DateOnly, JSON anidado raro)
+
+
+
+Middleware (nombre alternativo  “Other Services”)
+
+            Manejo de excepciones, logging, headers, JWT decoding, etc.
+
+            Ejemplo:
+
+            public class ExceptionHandlingMiddleware
+            {
+                private readonly RequestDelegate _next;
+
+                public async Task Invoke(HttpContext context)
+                {
+                    try { await _next(context); }
+                    catch (Exception ex)
+                    {
+                        context.Response.StatusCode = 500;
+                        await context.Response.WriteAsync("Error interno");
+                    }
+                }
+            }
+
+
+Services
+
+        Servicios técnicos usados solo desde los Controllers, ej:
+
+        JwtTokenGenerator
+
+        CurrentUserService
+
+
+Interfaces
+
+
+            Interfaces propias de la API (raro)
+
+            Ej: ICurrentUserService si lo querés usar con DI
+
+
+
+
+Ejemplo del flujo
+
+            📲 Frontend llama a POST /api/vehicles
+
+            AddVehicleRequest viaja en el body
+
+            VehiclesController recibe ese request
+
+            Llama al AddVehicleUseCase del backend
+
+            Devuelve AddVehicleResponse
+

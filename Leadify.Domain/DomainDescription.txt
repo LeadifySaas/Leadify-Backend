@@ -1,0 +1,126 @@
+﻿Core/
+├── Entities/              # Clases con ID, mapeables a base de datos
+├── ValueObjects/          # Clases sin ID, inmutables, propiedad de otra entidad
+├── Aggregates/            # Entidades raíz que agrupan otras entidades relacionadas
+├── DomainServices/        # Lógica de negocio que no pertenece a ninguna entidad
+├── DomainEvents/          # Eventos que describen hechos ocurridos en el dominio
+├── DomainEventHandlers/   # Procesadores que actúan cuando ocurre un DomainEvent
+├── DomainExceptions/      # Excepciones específicas del dominio
+├── Specifications/        # Reglas de filtrado centralizadas y reutilizables
+├── Validators/            # Validaciones a nivel dominio (puede incluir FluentValidation)
+├── Enums/                 # Enumeraciones del dominio
+├── Guards/                # Validaciones reutilizables inline, estilo helpers
+
+
+
+ENTITIES: 
+
+			"Todos los objetos/clases/entidades que se van a almacenar en base de datos y tienen un campo id", esas son mis entidades.
+			Despues, en la demo muestra que agrega bastante logica a las entidades para ahorrar codigo en otros lugares. Por ejemplo, muestra el status de un proyecto, donde el valor depende de que si todos sus items relacionadas estan comletos y le asigna ProjectStatus.Complete o Incomplete segun el caso. 
+
+VALUE OBJECTS:
+
+			"DATE TIME  es un ej. Y frecuencemente estos value objects van a ser  propiedades de una entidad, como la fecha" .
+			
+AGREGATES: 
+
+			"Es una forma de agrupar muchas entidades que tienen algun tipo de relacion en un todo".
+			Ej: Orden de compra con linea de items o una Orden con detalles.
+
+DOMAIN SERVICES
+
+			No se explica muy bien, pero entiendo que es logica que no va en ninguna de las 3 divisiones anteriores, y son cosas que tienen que orquestar entre aggregates y
+			 value objects.
+
+			 Ej:
+			 public class VehicleEligibilityService
+				{
+					public bool CanBePublished(Vehicle v)
+					 {
+						 return v.StatusId == 2 && v.Price > 0;
+					 }
+				}
+
+			
+DOMAIN EXCEPTIONS
+
+			"Son excepciones, dentro del dominio, que sabes que pueden ocurrir. En lugar de tirar excepciones genericas como NotFound() podes tirar excepciones personalizadas como CustomerDoesntExistException()".
+			"Entonces cuando ves esta exepcion en el log, sabes de donde proviene exactamente y puede ahorrar varios problemas".
+			En mi caso seria  WrongPasswordException() o EmailAlreadyExistException() o cosas relacionadas al negocio, pero de logica perteneciente al dominio y sus entidades
+
+DOMAIN EVENTS
+
+			"Son acciones/cosas que suceden dentro de la aplicacion que podrian ser importantes y alguien quiere saber sobre esto, viene bien para funcionar nuevas de .net 8 como Metricas y Traces (rastreos supongo) y demas cuestiones relacionadas a la observalidad, entonces estos domain events van de la mano con ese tipo de conceptos".
+			"Ej: Cada vez que alguien agrega un item a un carrito (Siempre teniendo en cuenta que ese item es una entidad del dominio), podes tener un domain event para esto y tener algun tipo de mecanismo para contabilizar esto (Ej: contador de cuantos adds al carrito tiene x producto)".
+			Ejemplo de codigo
+			public void AddItem(TodoItem newItem)
+			{
+			var newItemAddedEvent = new NewItemAddedEvent(this, newItem);
+			base.RegisterDomainEvent(newItemAddedEvent)
+			}
+
+DOMAIN HANDLERS
+
+			No entendi muy bien, investigar, pero se relaciona con los domain events.
+			Le pegue una segunda vista y, segun entiendo, son handlers extras que podrian surgir a futuro, o funcionalidades extras que se necesitan agregar a esos domain events y no hay necesidad de modificar el domain event. Entonces, al principio puede estar vacio por un tiempo, pero en un futuro a lo mejor se necesite agregar cierta funcionalidad, no se, se me ocurre la basica de Avisarle al cliente que se realizo cierta accion y enviarle un correo, esto en base a un domain event ejecutado.
+			Puede ser que sea la logica detras de los domain events?
+			"Lo bueno de estos handlers es que pueden usar inyeccion de dependencia, como un emailSender"
+
+			Efectivamente Son los que procesan los Domain Events. Ejemplo:
+							// Domain Event
+					public class NewItemAddedEvent : DomainEvent
+					{
+					  public TodoItem Item { get; }
+					}
+
+					// Domain Handler
+					public class NewItemAddedEventHandler : INotificationHandler<NewItemAddedEvent>
+					{
+					 public async Task Handle(NewItemAddedEvent notification)
+						{
+							 // Enviar email, actualizar métricas, etc.
+					 }
+					}
+
+SPECIFITACIONS
+
+			"Un patron para definir querys excelente y sin usar."
+			"Ej: Si tenes un problema en tu codigo, y miras y ves expresiones de LINQ en todos lados, buscando rows y asegurandote de que tienen X valor, o X relacion y ves que esta en tus servicios, en tus views, en tus endpots, en basicamente todos lados. Estas SPECIFITACIONES te sirven para traer todo eso dentro del domain model donde esta centralizado, testeable facilmente, propiemente nombradas y facil de reusar"
+
+VALIDATORS
+	
+			Lo dice la palabra, investigar cualquier duda
+
+			public class VehicleValidator
+					{
+					   public void Validate(Vehicle vehicle)
+					 {
+						 if (string.IsNullOrWhiteSpace(vehicle.Title))
+							 throw new InvalidVehicleException("Title is obligatorio");
+
+							if (vehicle.Price <= 0)
+							   throw new InvalidVehicleException("El precio debe ser mayor a 0");
+						}
+					}
+
+ENUMS
+
+			Es sabido
+
+CUSTOM GUARDS
+
+			NO EXPLICA
+			En la demo muestra un proyecto de un todo, donde en la entidad Project tiene este codigo
+			public void UpdateName(string newName)
+			{
+			Name = Guard.Againts.NullOrEmpty(newName, nameof(newName))
+			}
+			tambien tiene
+
+			public Project(string name, PriorityStatus priority)
+			{
+			Name = Guard.Againts.NullOrEnmpty(name, nameof(name))
+			}
+
+
+			

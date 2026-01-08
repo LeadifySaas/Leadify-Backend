@@ -1,0 +1,121 @@
+﻿
+Application/
+├── Commands/              # Acciones que cambian el estado (crear, editar, eliminar)
+│   └── AddVehicle/
+│       ├── AddVehicleCommand.cs
+│       └── AddVehicleCommandHandler.cs
+├── Queries/               # Acciones de lectura (traer datos)
+│   └── GetVehiclesByDealer/
+│       ├── GetVehiclesByDealerQuery.cs
+│       └── GetVehiclesByDealerQueryHandler.cs
+├── DTOs/                  # Objetos intermedios para devolver al usuario
+│   └── VehicleDto.cs
+├── Behaviors/             # Middlewares de pipeline de MediatR (log, validación, etc.)
+│   ├── ValidationBehavior.cs
+│   └── PerformanceBehavior.cs
+
+
+
+
+Commands/ y CommandHandlers/
+
+            Los Commands modifican el estado (crear vehículo, eliminar usuario, etc.)
+
+            Ejemplo – AddVehicleCommand.cs
+
+            public record AddVehicleCommand(string Title, decimal Price, Guid BrandId) : IRequest<Guid>;
+
+
+            Ejemplo – AddVehicleCommandHandler.cs
+
+            public class AddVehicleCommandHandler : IRequestHandler<AddVehicleCommand, Guid>
+            {
+                private readonly IVehicleRepository _repo;
+
+                public AddVehicleCommandHandler(IVehicleRepository repo) => _repo = repo;
+
+                public async Task<Guid> Handle(AddVehicleCommand cmd, CancellationToken ct)
+                {
+                    var vehicle = new Vehicle(cmd.Title, cmd.Price, cmd.BrandId);
+                    await _repo.AddAsync(vehicle);
+                    return vehicle.Id;
+                }
+            }
+
+
+Queries/ y QueryHandlers/
+
+            Los Queries solo leen datos, no modifican nada.
+
+            Ejemplo – GetVehiclesByDealerQuery.cs
+            public record GetVehiclesByDealerQuery(Guid DealerId) : IRequest<List<VehicleDto>>;
+
+
+            Ejemplo – GetVehiclesByDealerQueryHandler.cs
+            public class GetVehiclesByDealerQueryHandler : IRequestHandler<GetVehiclesByDealerQuery, List<VehicleDto>>
+            {
+                private readonly IVehicleRepository _repo;
+
+                public GetVehiclesByDealerQueryHandler(IVehicleRepository repo) => _repo = repo;
+
+                public async Task<List<VehicleDto>> Handle(GetVehiclesByDealerQuery query, CancellationToken ct)
+                {
+                    var vehicles = await _repo.GetByDealership(query.DealerId);
+                    return vehicles.Select(v => new VehicleDto(v.Id, v.Title, v.Price)).ToList();
+                }
+            }
+
+
+
+DTOs/
+
+            Objetos livianos que se devuelven al frontend o capa API
+
+            Ejemplo – VehicleDto.cs
+            public record VehicleDto(Guid Id, string Title, decimal Price);
+
+
+
+Behaviors/
+
+            Middlewares que se ejecutan antes/después de cada Command o Query
+
+            Ejemplo – ValidationBehavior.cs
+
+            public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+                 where TRequest : IRequest<TResponse>
+            {
+                private readonly IEnumerable<IValidator<TRequest>> _validators;
+
+                public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
+                    => _validators = validators;
+
+                public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
+                {
+                    var context = new ValidationContext<TRequest>(request);
+                    var failures = _validators.Select(v => v.Validate(context)).SelectMany(r => r.Errors).ToList();
+
+                    if (failures.Any())
+                        throw new ValidationException(failures);
+
+                    return await next();
+                }
+            }
+
+
+            Otros behaviors comunes:
+
+            PerformanceBehavior: mide cuánto tarda un handler
+
+            LoggingBehavior: logea entrada y salida de cada request
+
+
+
+🧠 Reglas clave
+Commands y Queries no comparten lógica (principio de CQRS)
+
+Cada carpeta de Command/Query puede tener su propio subfolder
+
+Los DTOs se devuelven desde los handlers a la capa API
+
+La capa Application no conoce EF ni Http ni JWT. Solo orquesta lógica de negocio
