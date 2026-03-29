@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Leadify.Application\Leadify.Application.csproj" />
+    <ProjectReference Include="..\Leadify.Infrastructure\Leadify.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
