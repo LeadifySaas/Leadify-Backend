@@ -516,3 +516,4 @@ appsettings.Local.json
 ## [SISTEMA]
 .DS_Store
 Thumbs.db
+*.cache
