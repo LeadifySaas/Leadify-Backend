@@ -13,7 +13,6 @@ namespace Leadify.Domain.Entities
         public bool PuedeEscribir { get; set; }
         public bool PuedeEliminar { get; set; }
 
-        // Propiedades de navegación
         public Rol? Rol { get; set; }
         public Menu? Menu { get; set; }
     }

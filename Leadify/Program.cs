@@ -1,5 +1,7 @@
 using Leadify.Application.Interfaces;
+using Leadify.Domain.Interfaces;
 using Leadify.Infrastructure.Data;
+using Leadify.Infrastructure.Repositories;
 using Leadify.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +10,19 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configurar la Base de Datos (Entity Framework)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.AllowAnyOrigin() 
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion")));
 
-// 2. Configurar Autenticación JWT
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]!);
 
@@ -35,28 +45,37 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// 3. Servicios estándar
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
+
+
 builder.Services.AddOpenApi();
-
-
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IArticuloRepository, ArticuloRepository>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<ISedeRepository, SedeRepository>();
+builder.Services.AddScoped<IRemitoRepository, RemitoRepository>();
+//builder.Services.AddScoped<IRemitoItemRepository, RemitoRepository>();
+
+
 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+app.UseCors("AllowReactApp");
 
-// IMPORTANTE: Authentication debe ir antes de Authorization
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

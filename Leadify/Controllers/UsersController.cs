@@ -22,7 +22,6 @@ namespace Leadify.Controllers
             _authService = authService;
         }
 
-        // POST: api/users/register
         [HttpPost("register")]
         public async Task<ActionResult<Usuario>> Register(UserRegisterDto dto)
         {
@@ -52,17 +51,16 @@ namespace Leadify.Controllers
 
         // POST: api/users/login
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(string email, string password)
+        public async Task<ActionResult<string>> Login([FromBody] LoginDto loginDto) // Agregamos [FromBody] y el DTO
         {
-            var token = await _authService.LoginAsync(email, password);
+            var token = await _authService.LoginAsync(loginDto.Email, loginDto.Password);
 
             if (token == null)
-                return Unauthorized("Email o contraseña incorrectos");
+                return Unauthorized(new { message = "Email o contraseña incorrectos" });
 
             return Ok(new { token });
         }
 
-        // GET: api/users (Para el CRUD)
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsers()
         {

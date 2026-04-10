@@ -579,7 +579,8 @@
         "dependencies": {
           "AutoMapper": "16.0.0",
           "FluentValidation": "12.1.1",
-          "Leadify.Domain": "1.0.0"
+          "Leadify.Domain": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "10.0.3"
         },
         "compile": {
           "bin/placeholder/Leadify.Application.dll": {}

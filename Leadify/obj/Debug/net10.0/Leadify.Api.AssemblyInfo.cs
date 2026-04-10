@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Leadify.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c9e27fdea3ff10e3c7c11a4fbc7b64aa598cafe2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+65fba8f87a78bb7bf705e9258776d77225b40c6b")]
 [assembly: System.Reflection.AssemblyProductAttribute("Leadify.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Leadify.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
