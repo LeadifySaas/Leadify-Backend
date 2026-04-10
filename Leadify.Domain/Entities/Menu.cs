@@ -18,7 +18,6 @@ namespace Leadify.Domain.Entities
         public int? MenuId { get; set; }
         public int RolId { get; set; }
 
-        // Relación con la tabla intermedia
         public ICollection<RolMenu> RolMenus { get; set; } = new List<RolMenu>();
     }
 }

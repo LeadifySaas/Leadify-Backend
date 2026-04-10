@@ -11,7 +11,6 @@ namespace Leadify.Domain.Entities
         public bool Activo { get; set; }
         public string? Descripcion { get; set; }
 
-        // Relaciones
         public ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
         public ICollection<RolMenu> RolMenus { get; set; } = new List<RolMenu>();
     }
