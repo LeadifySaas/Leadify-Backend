@@ -29,7 +29,7 @@ namespace Leadify.Infrastructure.Repositories
             {
                 // Buscamos por número de remito o nombre del cliente
                 query = query.Where(r => r.NumeroRemito.Contains(search) ||
-                                         r.Cliente.RazonSocial.Contains(search));
+                                         r.Cliente.DNI.Contains(search));
             }
 
             var totalCount = await query.CountAsync();

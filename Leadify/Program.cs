@@ -49,6 +49,12 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+
+        // Esta línea es la que corta el bucle infinito del JSON
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+
+        // Opcional: para que el JSON se vea ordenado
+        options.JsonSerializerOptions.WriteIndented = true;
     });
 
 
@@ -60,6 +66,8 @@ builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
 builder.Services.AddScoped<ISedeRepository, SedeRepository>();
 builder.Services.AddScoped<IRemitoRepository, RemitoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
+builder.Services.AddScoped<IContactoRepository, ContactoRepository>();
 //builder.Services.AddScoped<IRemitoItemRepository, RemitoRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
