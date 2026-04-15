@@ -12,5 +12,7 @@ namespace Leadify.Domain.Interfaces
         Task<Contacto> CreateAsync(Contacto contacto);
         Task UpdateAsync(Contacto contacto);
         Task DeleteAsync(int id);
+
+        Task<bool> ExisteEmailAsync(string mail);
     }
 }

@@ -15,6 +15,8 @@ namespace Leadify.Domain.Interfaces
         Task UpdateAsync(Empresa empresa);
         Task DeleteAsync(int id);
         Task<bool> ExisteCuitAsync(string cuit);
+
+        Task<bool> ExisteEmailAsync(string mail);
     }
 
 }

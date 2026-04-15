@@ -86,5 +86,12 @@ namespace Leadify.Infrastructure.Repositories
             if (string.IsNullOrEmpty(cuit)) return false;
             return await _context.Empresas.AnyAsync(e => e.Cuit == cuit);
         }
+
+        public async Task<bool> ExisteEmailAsync(string email)
+        {
+            if (string.IsNullOrEmpty(email)) return false;
+            // Usamos ToLower() para que la validación sea case-insensitive
+            return await _context.Empresas.AnyAsync(c => c.EmailFacturacion.ToLower() == email.ToLower());
+        }
     }
 }

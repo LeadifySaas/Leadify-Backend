@@ -59,6 +59,11 @@ namespace Leadify.API.Controllers
                 return BadRequest("El CUIT de la empresa ya se encuentra registrado.");
             }
 
+            if (!string.IsNullOrEmpty(dto.EmailFacturacion) && await _empresaRepo.ExisteEmailAsync(dto.EmailFacturacion))
+            {
+                return BadRequest(new { message = "El email ya se encuentra registrado." });
+            }
+
             var empresa = new Empresa
             {
                 ClienteId = dto.ClienteId,
@@ -87,6 +92,12 @@ namespace Leadify.API.Controllers
             {
                 if (await _empresaRepo.ExisteCuitAsync(dto.Cuit))
                     return BadRequest("El nuevo CUIT ya está siendo usado por otra empresa.");
+            }
+
+            if (!string.IsNullOrEmpty(dto.EmailFacturacion) && dto.EmailFacturacion.ToLower() != empresaExistente.EmailFacturacion?.ToLower())
+            {
+                if (await _empresaRepo.ExisteEmailAsync(dto.EmailFacturacion))
+                    return BadRequest(new { message = "El nuevo email ya está siendo usado por otra empresa." });
             }
 
             empresaExistente.ClienteId = dto.ClienteId; // Permite el cambio de dueño que hablamos

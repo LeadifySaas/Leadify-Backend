@@ -97,5 +97,12 @@ namespace Leadify.Infrastructure.Repositories
                 .Where(s => s.ClienteId == clienteId)
                 .ToListAsync();
         }
+
+        public async Task<bool> ExisteEmailAsync(string email)
+        {
+            if (string.IsNullOrEmpty(email)) return false;
+            // Usamos ToLower() para que la validación sea case-insensitive
+            return await _context.Clientes.AnyAsync(c => c.Email.ToLower() == email.ToLower());
+        }
     }
 }

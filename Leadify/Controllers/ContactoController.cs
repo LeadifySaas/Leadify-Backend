@@ -30,6 +30,12 @@ namespace Leadify.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ContactoDto dto)
         {
+            if (!string.IsNullOrEmpty(dto.Email) && await _contactoRepo.ExisteEmailAsync(dto.Email))
+            {
+                return BadRequest(new { message = "El email ya se encuentra registrado." });
+            }
+
+
             var contacto = new Contacto
             {
                 ClienteId = dto.ClienteId,
@@ -50,6 +56,13 @@ namespace Leadify.API.Controllers
         {
             var existente = await _contactoRepo.GetByIdAsync(id);
             if (existente == null) return NotFound();
+
+            if (!string.IsNullOrEmpty(dto.Email) && dto.Email.ToLower() != existente.Email?.ToLower())
+            {
+                // Ahora sí, preguntamos si ese "nuevo" mail lo tiene ALGUIEN MÁS
+                if (await _contactoRepo.ExisteEmailAsync(dto.Email))
+                    return BadRequest(new { message = "El nuevo email ya está siendo usado por otro contacto." });
+            }
 
             existente.Nombre = dto.Nombre;
             existente.Apellido = dto.Apellido;

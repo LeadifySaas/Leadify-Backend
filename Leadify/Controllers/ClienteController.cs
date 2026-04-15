@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Leadify.Application.DTOs;
+﻿using Leadify.Application.DTOs;
 using Leadify.Domain.Entities;
 using Leadify.Domain.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Leadify.API.Controllers
 {
@@ -43,6 +44,12 @@ namespace Leadify.API.Controllers
                 return BadRequest("El CUIL ya se encuentra registrado.");
             }
 
+            if (!string.IsNullOrEmpty(dto.Email) && await _clienteRepo.ExisteEmailAsync(dto.Email))
+            {
+                return BadRequest(new { message = "El email ya se encuentra registrado." });
+            }
+
+
             var cliente = new Cliente
             {
                 Nombre = dto.Nombre,
@@ -81,6 +88,12 @@ namespace Leadify.API.Controllers
                     return BadRequest("El nuevo CUIL ya está siendo usado por otro cliente.");
             }
 
+            if (!string.IsNullOrEmpty(dto.Email) && dto.Email.ToLower() != clienteExistente.Email?.ToLower())
+            {
+                if (await _clienteRepo.ExisteEmailAsync(dto.Email))
+                    return BadRequest(new { message = "El nuevo email ya está siendo usado por otro cliente." });
+            }
+
             clienteExistente.Nombre = dto.Nombre;
             clienteExistente.Apellido = dto.Apellido;
             clienteExistente.DNI = dto.DNI;
@@ -108,5 +121,10 @@ namespace Leadify.API.Controllers
             await _clienteRepo.DeleteAsync(id);
             return NoContent();
         }
+
+
+            
+
+
     }
 }

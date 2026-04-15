@@ -15,9 +15,13 @@ namespace Leadify.Domain.Interfaces
         Task UpdateAsync(Cliente cliente);
         Task DeleteAsync(int id);
         Task<bool> ExisteCuilAsync(string cuit);
+        Task<bool> ExisteEmailAsync(string mail);
 
         // Métodos para Sedes (asociadas al cliente)
         Task AddSedeAsync(Sede sede);
         Task<IEnumerable<Sede>> GetSedesByClienteIdAsync(int clienteId);
+
+       
+
     }
 }
