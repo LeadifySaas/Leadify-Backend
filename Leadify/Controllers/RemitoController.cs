@@ -31,7 +31,7 @@ namespace Leadify.API.Controllers
             {
                 Id = r.Id,
                 NumeroRemito = r.NumeroRemito,
-                ClienteNombre = r.Cliente?.RazonSocial ?? "S/D",
+                ClienteNombre = r.Cliente?.Nombre ?? "S/D",
                 SedeNombre = r.Sede?.Nombre ?? "S/D",
                 FechaEmision = r.FechaEmision,
                 Estado = r.Estado,
@@ -71,7 +71,7 @@ namespace Leadify.API.Controllers
                 Cliente = new
                 {
                     remito.Cliente?.Id,
-                    remito.Cliente?.RazonSocial
+                    remito.Cliente?.Nombre
                 },
                 Sede = new
                 {

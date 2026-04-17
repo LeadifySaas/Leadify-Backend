@@ -28,7 +28,7 @@ namespace Leadify.API.Controllers
             {
                 Id = s.Id,
                 ClienteId = s.ClienteId,
-                ClienteNombre = s.Cliente?.RazonSocial ?? "Sin Cliente",
+                ClienteNombre = s.Cliente?.Nombre ?? "Sin Cliente",
                 Nombre = s.Nombre,
                 Direccion = s.Direccion,
                 Localidad = s.Localidad,
@@ -81,7 +81,7 @@ namespace Leadify.API.Controllers
             {
                 Id = s.Id,
                 ClienteId = s.ClienteId,
-                ClienteNombre = s.Cliente?.RazonSocial ?? "Sin Cliente",
+                ClienteNombre = s.Cliente?.Nombre ?? "Sin Cliente",
                 Nombre = s.Nombre,
                 Direccion = s.Direccion,
                 Localidad = s.Localidad,

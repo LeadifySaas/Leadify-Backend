@@ -35,7 +35,7 @@ public class RemitoReportService : IRemitoReportService
         {
             worksheet.Cell(row, 1).Value = r.NumeroRemito;
             worksheet.Cell(row, 2).Value = r.FechaEmision;
-            worksheet.Cell(row, 3).Value = r.Cliente?.RazonSocial;
+            worksheet.Cell(row, 3).Value = r.Cliente?.Nombre;
             worksheet.Cell(row, 4).Value = r.Estado;
             row++;
         }

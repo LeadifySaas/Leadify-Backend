@@ -68,7 +68,7 @@ namespace Leadify.Infrastructure.Data.Reports
                 col.Item().Row(row => {
                     row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(10).Column(c => {
                         c.Item().Text("DESTINATARIO").FontSize(9).SemiBold().FontColor(Colors.Grey.Medium);
-                        c.Item().Text(_remito.Cliente?.RazonSocial ?? "S/D").FontSize(12).SemiBold();
+                        c.Item().Text(_remito.Cliente?.Nombre ?? "S/D").FontSize(12).SemiBold();
                         c.Item().Text($"Obra: {_remito.Sede?.Nombre ?? "S/D"}").FontSize(10);
                     });
                 });
