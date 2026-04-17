@@ -25,8 +25,21 @@ namespace Leadify.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<Usuario>> Register(UserRegisterDto dto)
         {
+            
+
+            // 1. Validar email
             if (await _context.Usuarios.AnyAsync(x => x.Email == dto.Email))
                 return BadRequest("El email ya está registrado");
+
+            // 2.Validar que el Rol exista 
+            if (!await _context.Roles.AnyAsync(r => r.Id == dto.RolId))
+                return BadRequest("El rol seleccionado no es válido en la base de datos.");
+
+            // 3. Validación de contraseña 
+            if (dto.Password.Length < 8 || !dto.Password.Any(char.IsUpper) || !dto.Password.Any(char.IsDigit))
+            {
+                return BadRequest("La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.");
+            }
 
             using var hmac = new HMACSHA512();
 
@@ -38,12 +51,15 @@ namespace Leadify.Controllers
                 RolId = dto.RolId,
                 Activo = true,
                 FechaCreacion = DateTime.Now,
+                Telefono = dto.Telefono,
+                AreaSector = dto.AreaSector,
+                FotoPerfil = dto.FotoPerfil,
+                Observaciones = dto.Observaciones,
                 PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(dto.Password)),
                 PasswordSalt = hmac.Key
             };
 
             _context.Usuarios.Add(usuario);
-            await _context.Set<Usuario>().AddAsync(usuario); // Asegura que use la entidad
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Usuario creado con éxito" });
@@ -60,11 +76,102 @@ namespace Leadify.Controllers
 
             return Ok(new { token });
         }
-
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers([FromQuery] string search = "")
         {
-            return await _context.Usuarios.Include(u => u.Rol).ToListAsync();
+            var query = _context.Usuarios
+                .Include(u => u.Rol)
+                .AsQueryable();
+
+            // 1. Lógica del Buscador
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                query = query.Where(u =>
+                    u.Nombre.ToLower().Contains(search) ||
+                    u.Apellido.ToLower().Contains(search) ||
+                    u.Email.ToLower().Contains(search));
+            }
+
+            
+            var users = await query
+                .Select(u => new UserResponseDto
+                {
+                    Id = u.Id,
+                    Nombre = u.Nombre,
+                    Apellido = u.Apellido,
+                    Email = u.Email,
+                    NombreRol = u.Rol.Nombre,
+                    Activo = u.Activo,
+                    Telefono = u.Telefono,
+                    AreaSector = u.AreaSector
+                })
+                .ToListAsync();
+
+            return Ok(users);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] Usuario dto)
+        {
+            if (id != dto.Id) return BadRequest("El ID no coincide");
+
+            var usuarioDb = await _context.Usuarios.FindAsync(id);
+            if (usuarioDb == null) return NotFound("Usuario no encontrado");
+
+            // Actualización de campos permitidos según el perfil
+            usuarioDb.Nombre = dto.Nombre;
+            usuarioDb.Apellido = dto.Apellido;
+            usuarioDb.Email = dto.Email; 
+            usuarioDb.RolId = dto.RolId;
+            usuarioDb.Activo = dto.Activo;
+
+            // Campos nuevos del protocolo SQL
+            usuarioDb.Telefono = dto.Telefono;
+            usuarioDb.AreaSector = dto.AreaSector;
+            usuarioDb.Observaciones = dto.Observaciones;
+            usuarioDb.FotoPerfil = dto.FotoPerfil;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error al actualizar: " + ex.Message);
+            }
+
+            return Ok(new { message = "Perfil actualizado correctamente" });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var usuario = await _context.Usuarios.FindAsync(id);
+           
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+            usuario.Activo = false;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
+        // GET: api/Users/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+           
+            var usuario = await _context.Usuarios
+                .Include(u => u.Rol) 
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (usuario == null) return NotFound();
+
+            return Ok(usuario);
         }
     }
 }

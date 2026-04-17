@@ -11,12 +11,27 @@ namespace Leadify.Infrastructure.Configurations
             builder.ToTable("Clientes");
             builder.HasKey(c => c.Id);
 
-            builder.Property(c => c.RazonSocial).IsRequired().HasMaxLength(150);
-            builder.Property(c => c.CUIT).IsRequired().HasMaxLength(20);
-            builder.HasIndex(c => c.CUIT).IsUnique(); 
+            // Configuramos Nombre y Apellido (Reemplazan a RazonSocial)
+            builder.Property(c => c.Nombre).IsRequired().HasMaxLength(100);
+            builder.Property(c => c.Apellido).IsRequired().HasMaxLength(100);
 
-            builder.Property(c => c.Email).HasMaxLength(100);
+            // Configuramos DNI y CUIL (Reemplazan a CUIT)
+            builder.Property(c => c.DNI).HasMaxLength(20);
+            builder.Property(c => c.CUIL).HasMaxLength(13);
+
+            // Mantenemos la unicidad pero sobre el CUIL
+            builder.HasIndex(c => c.CUIL).IsUnique();
+
+            builder.Property(c => c.Email).HasMaxLength(150);
             builder.Property(c => c.Telefono).HasMaxLength(50);
+
+            // Campos de localización y otros
+            builder.Property(c => c.Direccion).HasMaxLength(250);
+            builder.Property(c => c.Localidad).HasMaxLength(150);
+            builder.Property(c => c.Provincia).HasMaxLength(100);
+            builder.Property(c => c.CodigoPostal).HasMaxLength(20);
+            builder.Property(c => c.LimiteCredito).HasColumnType("decimal(18,2)");
+            builder.Property(c => c.Observaciones).HasMaxLength(2000);
         }
     }
 }

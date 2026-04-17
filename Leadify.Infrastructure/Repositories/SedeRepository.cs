@@ -25,7 +25,7 @@ namespace Leadify.Infrastructure.Repositories
             {
                 query = query.Where(s => s.Nombre.Contains(search) ||
                                          s.Localidad.Contains(search) ||
-                                         s.Cliente.RazonSocial.Contains(search));
+                                         s.Cliente.DNI.Contains(search));
             }
 
             var totalCount = await query.CountAsync();

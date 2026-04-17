@@ -1,7 +1,7 @@
 ﻿using Leadify.Domain.Common;
 using Leadify.Domain.Entities;
 using Leadify.Domain.Interfaces;
-using Leadify.Infrastructure.Data; 
+using Leadify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Leadify.Infrastructure.Repositories
@@ -17,18 +17,23 @@ namespace Leadify.Infrastructure.Repositories
 
         public async Task<PagedResult<Cliente>> GetPagedAsync(int pageIndex, int pageSize, string? search)
         {
-            var query = _context.Clientes
-                .AsQueryable();
+            var query = _context.Clientes.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                query = query.Where(c => c.RazonSocial.Contains(search) || c.CUIT.Contains(search));
+                // Ahora buscamos por Nombre, Apellido o CUIL
+                query = query.Where(c =>
+                    c.Nombre.Contains(search) ||
+                    c.Apellido.Contains(search) ||
+                    c.CUIL.Contains(search) ||
+                    c.DNI.Contains(search));
             }
 
             var totalCount = await query.CountAsync();
 
             var items = await query
-                .OrderBy(c => c.RazonSocial).ThenByDescending(a => a.Activo)
+                // Ordenamos por Apellido y luego por Nombre
+                .OrderBy(c => c.Apellido).ThenBy(c => c.Nombre)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -66,14 +71,17 @@ namespace Leadify.Infrastructure.Repositories
             var cliente = await _context.Clientes.FindAsync(id);
             if (cliente != null)
             {
-                cliente.Activo = false; // Borrado lógico para no romper historial de remitos
+                // Mantenemos el borrado lógico para integridad referencial
+                cliente.Activo = false;
                 await _context.SaveChangesAsync();
             }
         }
 
-        public async Task<bool> ExisteCuitAsync(string cuit)
+        // Actualizado a CUIL
+        public async Task<bool> ExisteCuilAsync(string cuil)
         {
-            return await _context.Clientes.AnyAsync(c => c.CUIT == cuit);
+            if (string.IsNullOrEmpty(cuil)) return false;
+            return await _context.Clientes.AnyAsync(c => c.CUIL == cuil);
         }
 
         // --- Lógica de Sedes ---
@@ -88,6 +96,13 @@ namespace Leadify.Infrastructure.Repositories
             return await _context.Sedes
                 .Where(s => s.ClienteId == clienteId)
                 .ToListAsync();
+        }
+
+        public async Task<bool> ExisteEmailAsync(string email)
+        {
+            if (string.IsNullOrEmpty(email)) return false;
+            // Usamos ToLower() para que la validación sea case-insensitive
+            return await _context.Clientes.AnyAsync(c => c.Email.ToLower() == email.ToLower());
         }
     }
 }

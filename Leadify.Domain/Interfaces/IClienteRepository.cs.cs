@@ -3,6 +3,7 @@ using Leadify.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Leadify.Domain.Interfaces
 {
@@ -13,10 +14,14 @@ namespace Leadify.Domain.Interfaces
         Task<Cliente> CreateAsync(Cliente cliente);
         Task UpdateAsync(Cliente cliente);
         Task DeleteAsync(int id);
-        Task<bool> ExisteCuitAsync(string cuit);
+        Task<bool> ExisteCuilAsync(string cuit);
+        Task<bool> ExisteEmailAsync(string mail);
 
         // Métodos para Sedes (asociadas al cliente)
         Task AddSedeAsync(Sede sede);
         Task<IEnumerable<Sede>> GetSedesByClienteIdAsync(int clienteId);
+
+       
+
     }
 }

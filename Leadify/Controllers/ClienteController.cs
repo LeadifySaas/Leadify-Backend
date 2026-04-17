@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Leadify.Application.DTOs;
+﻿using Leadify.Application.DTOs;
 using Leadify.Domain.Entities;
 using Leadify.Domain.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Leadify.API.Controllers
 {
@@ -16,10 +17,11 @@ namespace Leadify.API.Controllers
             _clienteRepo = clienteRepo;
         }
 
-        // GET: api/clientes?page=1&size=10&search=...
+        // GET: api/clientes?page=1&size=25&search=...
         [HttpGet]
         public async Task<IActionResult> GetPaged([FromQuery] int page = 1, [FromQuery] int size = 25, [FromQuery] string? search = null)
         {
+            // El repositorio debería buscar ahora por Nombre, Apellido o CUIL en el 'search'
             return Ok(await _clienteRepo.GetPagedAsync(page, size, search));
         }
 
@@ -36,17 +38,36 @@ namespace Leadify.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ClienteDto dto)
         {
-            if (await _clienteRepo.ExisteCuitAsync(dto.CUIT)) return BadRequest("CUIT Duplicado");
+            // Cambio de lógica: Ahora validamos por CUIL
+            if (!string.IsNullOrEmpty(dto.CUIL) && await _clienteRepo.ExisteCuilAsync(dto.CUIL))
+            {
+                return BadRequest("El CUIL ya se encuentra registrado.");
+            }
+
+            if (!string.IsNullOrEmpty(dto.Email) && await _clienteRepo.ExisteEmailAsync(dto.Email))
+            {
+                return BadRequest(new { message = "El email ya se encuentra registrado." });
+            }
+
 
             var cliente = new Cliente
             {
-                RazonSocial = dto.RazonSocial,
-                CUIT = dto.CUIT,
+                Nombre = dto.Nombre,
+                Apellido = dto.Apellido,
+                DNI = dto.DNI,
+                CUIL = dto.CUIL,
                 Email = dto.Email,
                 Telefono = dto.Telefono,
+                Direccion = dto.Direccion,
+                Localidad = dto.Localidad,
+                Provincia = dto.Provincia,
+                CodigoPostal = dto.CodigoPostal,
+                FechaNacimiento = dto.FechaNacimiento,
                 CondicionIVA = dto.CondicionIVA,
+                LimiteCredito = dto.LimiteCredito,
+                Observaciones = dto.Observaciones,
                 Activo = true,
-                CreatedAt = DateTime.Now 
+                CreatedAt = DateTime.Now
             };
 
             await _clienteRepo.CreateAsync(cliente);
@@ -60,13 +81,34 @@ namespace Leadify.API.Controllers
             var clienteExistente = await _clienteRepo.GetByIdAsync(id);
             if (clienteExistente == null) return NotFound();
 
-            clienteExistente.RazonSocial = dto.RazonSocial;
-            clienteExistente.CUIT = dto.CUIT;
+            // Validación de CUIL duplicado al editar (evitar chocar con otros, ignorando el propio)
+            if (!string.IsNullOrEmpty(dto.CUIL) && dto.CUIL != clienteExistente.CUIL)
+            {
+                if (await _clienteRepo.ExisteCuilAsync(dto.CUIL))
+                    return BadRequest("El nuevo CUIL ya está siendo usado por otro cliente.");
+            }
+
+            if (!string.IsNullOrEmpty(dto.Email) && dto.Email.ToLower() != clienteExistente.Email?.ToLower())
+            {
+                if (await _clienteRepo.ExisteEmailAsync(dto.Email))
+                    return BadRequest(new { message = "El nuevo email ya está siendo usado por otro cliente." });
+            }
+
+            clienteExistente.Nombre = dto.Nombre;
+            clienteExistente.Apellido = dto.Apellido;
+            clienteExistente.DNI = dto.DNI;
+            clienteExistente.CUIL = dto.CUIL;
             clienteExistente.Email = dto.Email;
             clienteExistente.Telefono = dto.Telefono;
+            clienteExistente.Direccion = dto.Direccion;
+            clienteExistente.Localidad = dto.Localidad;
+            clienteExistente.Provincia = dto.Provincia;
+            clienteExistente.CodigoPostal = dto.CodigoPostal;
+            clienteExistente.FechaNacimiento = dto.FechaNacimiento;
             clienteExistente.CondicionIVA = dto.CondicionIVA;
+            clienteExistente.LimiteCredito = dto.LimiteCredito;
+            clienteExistente.Observaciones = dto.Observaciones;
             clienteExistente.Activo = dto.Activo;
-
 
             await _clienteRepo.UpdateAsync(clienteExistente);
             return NoContent();
@@ -79,5 +121,10 @@ namespace Leadify.API.Controllers
             await _clienteRepo.DeleteAsync(id);
             return NoContent();
         }
+
+
+            
+
+
     }
 }

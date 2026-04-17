@@ -480,3 +480,40 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+## [ESTÁNDAR .NET]
+bin/
+obj/
+/TestResults/
+/out/
+
+## [VISUAL STUDIO]
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+*.dbmdl
+*.jfm
+*.VC.db
+*.VC.opendb
+
+## [VS CODE]
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+## [ARCHIVOS DE CONFIGURACIÓN]
+# IMPORTANTE: Esto evita que tus cambios de ConnectionString 
+# se suban al servidor y pisen los de tus compañeros.
+# Solo deberías subir el appsettings.json si agregás una key nueva.
+appsettings.Development.json
+appsettings.Local.json
+
+## [SISTEMA]
+.DS_Store
+Thumbs.db
+*.cache

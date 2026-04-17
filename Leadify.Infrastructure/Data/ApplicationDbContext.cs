@@ -20,6 +20,8 @@ namespace Leadify.Infrastructure.Data
         public DbSet<RemitoItem> RemitoItems { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Sede> Sedes { get; set; }
+        public DbSet<Empresa> Empresas { get; set; }
+        public DbSet<Contacto> Contactos { get; set; }
 
 
 
@@ -36,7 +38,20 @@ namespace Leadify.Infrastructure.Data
             modelBuilder.Entity<RolMenu>().ToTable("RolMenu");
 
 
+            // --- Configuración de Empresa ---
+            modelBuilder.Entity<Empresa>(entity =>
+            {
+                entity.ToTable("Empresas");
 
+                // Borrado lógico global para Empresas
+               // entity.HasQueryFilter(e => e.Activo);
+
+                // Relación Cliente -> Empresas (1:N)
+                entity.HasOne(e => e.Cliente)
+                      .WithMany() // O .WithMany(c => c.Empresas) si agregaste la lista en la entidad Cliente
+                      .HasForeignKey(e => e.ClienteId)
+                      .OnDelete(DeleteBehavior.Restrict); // Evita borrado accidental si hay datos vinculados
+            });
 
             // Aquí vamos a definir relaciones más complejas si fuera necesario
 
