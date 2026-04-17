@@ -14,7 +14,7 @@ namespace Leadify.Application.DTOs
         public string? Observaciones { get; set; }
         public List<RemitoItemsDto> Items { get; set; } = new();
         public bool Activo { get; set; }
-
+        public string CreadoPor { get; set; } = "";
     }
 
     public class RemitoResponseDto
@@ -26,6 +26,7 @@ namespace Leadify.Application.DTOs
         public DateTime FechaEmision { get; set; }
         public string Estado { get; set; } = string.Empty;
         public string? Observaciones { get; set; }
+        public string CreadoPor { get; set; } = "";
         public List<RemitoItemResponseDto> Items { get; set; } = new();
     }
 }

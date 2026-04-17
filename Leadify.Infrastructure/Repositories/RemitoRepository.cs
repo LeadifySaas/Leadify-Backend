@@ -23,6 +23,7 @@ namespace Leadify.Infrastructure.Repositories
             var query = _context.Remitos
                 .Include(r => r.Cliente)
                 .Include(r => r.Sede)
+                .Include(r => r.CreadoPorUsuario)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -48,79 +49,98 @@ namespace Leadify.Infrastructure.Repositories
                 .Include(r => r.Cliente)
                 .Include(r => r.Sede)
                 .Include(r => r.Items)
-                    .ThenInclude(i => i.Articulo) // Traemos el nombre del artículo para cada renglón
+                    .ThenInclude(i => i.Articulo) 
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
 
         public async Task<Remito> CreateAsync(Remito remito)
         {
+            // Usamos una transacción para asegurar integridad total
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                remito.CreatedAt = DateTime.Now;
-                remito.Estado = remito.Estado ?? "Emitido";
+                // 1. Validar duplicado de Número de Remito (Evita errores de DB feos)
+                bool existe = await _context.Remitos.AnyAsync(r => r.NumeroRemito == remito.NumeroRemito);
+                if (existe) throw new Exception($"El número de remito {remito.NumeroRemito} ya existe.");
 
-                _context.Remitos.Add(remito);
-
-                // Descontamos el stock de cada artículo incluido en el remito
                 foreach (var item in remito.Items)
                 {
+                    // 2. Traer el artículo para validar stock (con tracking para actualizarlo)
                     var articulo = await _context.Articulos.FindAsync(item.ArticuloId);
 
-                    if (articulo != null)
-                    {
-                        // Restamos la cantidad enviada del stock actual
-                        articulo.StockActual -= item.Cantidad;
-                        articulo.UpdatedAt = DateTime.Now;
+                    if (articulo == null)
+                        throw new Exception($"El artículo con ID {item.ArticuloId} no fue encontrado.");
 
-                        _context.Articulos.Update(articulo);
-                    }
-                    else
+                    // 3. Validación crítica de Stock
+                    if (articulo.StockActual < item.Cantidad)
                     {
-                        throw new Exception($"El artículo con ID {item.ArticuloId} no existe.");
+                        throw new Exception($"Stock insuficiente para '{articulo.Nombre}'. Disponible: {articulo.StockActual}, Solicitado: {item.Cantidad}");
                     }
+
+                    // 4. Descontar stock
+                    articulo.StockActual -= item.Cantidad;
                 }
 
+                // 5. Guardar cabecera e ítems
+                _context.Remitos.Add(remito);
                 await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
-
                 return remito;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Si algo falla (ej: error de red, id inexistente), deshacemos los cambios
                 await transaction.RollbackAsync();
-                throw new Exception("Error al procesar el remito y actualizar el stock.", ex);
+                throw; // Re-lanzamos la excepción para que el controlador la capture en el try/catch
             }
         }
 
-
         public async Task UpdateAsync(Remito remito)
         {
-            // Cargar el remito existente CON sus ítems desde la DB (con tracking)
-            var remitoEnDb = await _context.Remitos
+            // 1. Buscamos el original con sus items
+            var existingRemito = await _context.Remitos
                 .Include(r => r.Items)
                 .FirstOrDefaultAsync(r => r.Id == remito.Id);
 
-            if (remitoEnDb == null) return;
+            if (existingRemito == null) throw new Exception("Remito no encontrado");
 
-            // Actualizar campos escalares del padre
-            remitoEnDb.Estado = remito.Estado;
-            remitoEnDb.Observaciones = remito.Observaciones;
-            remitoEnDb.FechaEmision = remito.FechaEmision;
-            remitoEnDb.UpdatedAt = DateTime.Now;
+            // 2. Actualizamos campos básicos
+            existingRemito.NumeroRemito = remito.NumeroRemito;
+            existingRemito.FechaEmision = remito.FechaEmision;
+            existingRemito.Estado = remito.Estado;
+            existingRemito.Observaciones = remito.Observaciones;
 
-            // (requiere que RemitoItem tenga cascade delete configurado)
-            _context.RemoveRange(remitoEnDb.Items);
-            remitoEnDb.Items = remito.Items.Select(i => new RemitoItem
+            // AQUÍ EL ERROR: Asegurate de asignar el ID, no el objeto completo
+            existingRemito.ClienteId = remito.ClienteId;
+            existingRemito.SedeId = remito.SedeId;
+
+            // 3. Manejo de Items (Limpiar y Re-agregar es lo más seguro en ERPs)
+            _context.RemitoItems.RemoveRange(existingRemito.Items);
+
+            foreach (var item in remito.Items)
             {
-                RemitoId = remito.Id,
-                ArticuloId = i.ArticuloId,
-                Cantidad = i.Cantidad,
-                Notas = i.Notas
-            }).ToList();
+                existingRemito.Items.Add(new RemitoItem
+                {
+                    ArticuloId = item.ArticuloId,
+                    Cantidad = item.Cantidad,
+                    Notas = item.Notas
+                });
+            }
 
+            await _context.SaveChangesAsync();
+        }
+
+
+        public async Task UpdateEstadoAsync(int id, string nuevoEstado)
+        {
+            // Solo traemos el remito, sin los items (ahorramos memoria y tiempo)
+            var remito = await _context.Remitos.FindAsync(id);
+
+            if (remito == null) throw new Exception("Remito no encontrado");
+
+            remito.Estado = nuevoEstado;
+
+            // Entity Framework es inteligente: solo generará el SQL para la columna Estado
             await _context.SaveChangesAsync();
         }
 
@@ -130,7 +150,7 @@ namespace Leadify.Infrastructure.Repositories
             if (remito != null)
             {
                 remito.Estado = "Anulado";
-                remito.UpdatedAt = DateTime.Now;
+                remito.FechaActualizacion = DateTime.Now;
                 // Aquí podrías decidir si devolvés el stock al anular, depende de tu lógica de negocio
                 await _context.SaveChangesAsync();
             }

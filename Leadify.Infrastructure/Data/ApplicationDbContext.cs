@@ -22,6 +22,9 @@ namespace Leadify.Infrastructure.Data
         public DbSet<Sede> Sedes { get; set; }
 
 
+
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -31,7 +34,6 @@ namespace Leadify.Infrastructure.Data
             modelBuilder.Entity<Rol>().ToTable("Rol");
             modelBuilder.Entity<Menu>().ToTable("Menu");
             modelBuilder.Entity<RolMenu>().ToTable("RolMenu");
-
 
 
 

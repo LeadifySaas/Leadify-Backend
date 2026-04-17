@@ -18,8 +18,7 @@ namespace Leadify.Infrastructure.Repositories
         public async Task<PagedResult<Sede>> GetPagedAsync(int pageIndex, int pageSize, string? search)
         {
             var query = _context.Sedes
-                .Include(s => s.Cliente) // Para ver a qué cliente pertenece
-                .Where(s => s.Activo)
+                .Include(s => s.Cliente) 
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))

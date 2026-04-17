@@ -12,6 +12,7 @@ namespace Leadify.Domain.Interfaces
         Task<Remito?> GetByIdAsync(int id);
         Task<Remito> CreateAsync(Remito remito);
         Task UpdateAsync(Remito remito);
+        Task UpdateEstadoAsync(int id, string nuevoEstado);
         Task AnularAsync(int id);
     }
 }

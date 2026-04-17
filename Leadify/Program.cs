@@ -6,7 +6,9 @@ using Leadify.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using QuestPDF.Infrastructure;
 using System.Text;
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +63,10 @@ builder.Services.AddScoped<ISedeRepository, SedeRepository>();
 builder.Services.AddScoped<IRemitoRepository, RemitoRepository>();
 //builder.Services.AddScoped<IRemitoItemRepository, RemitoRepository>();
 
+
+
+
+builder.Services.AddScoped<IRemitoReportService, Leadify.Infrastructure.Reports.RemitoReportService>();
 
 
 
