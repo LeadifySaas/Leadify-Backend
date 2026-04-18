@@ -2268,23 +2268,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Enzo\\.nuget\\packages\\": {},
+    "C:\\Users\\Fabricio\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Enzo\\Desktop\\Leadify\\Back\\Leadify-Backend\\Leadify\\Leadify.Api.csproj",
+      "projectUniqueName": "E:\\CRM-SASS\\Leadify\\Leadify\\Leadify.Api.csproj",
       "projectName": "Leadify.Api",
-      "projectPath": "C:\\Users\\Enzo\\Desktop\\Leadify\\Back\\Leadify-Backend\\Leadify\\Leadify.Api.csproj",
-      "packagesPath": "C:\\Users\\Enzo\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Enzo\\Desktop\\Leadify\\Back\\Leadify-Backend\\Leadify\\obj\\",
+      "projectPath": "E:\\CRM-SASS\\Leadify\\Leadify\\Leadify.Api.csproj",
+      "packagesPath": "C:\\Users\\Fabricio\\.nuget\\packages\\",
+      "outputPath": "E:\\CRM-SASS\\Leadify\\Leadify\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Enzo\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Fabricio\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -2299,11 +2299,11 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\Enzo\\Desktop\\Leadify\\Back\\Leadify-Backend\\Leadify.Application\\Leadify.Application.csproj": {
-              "projectPath": "C:\\Users\\Enzo\\Desktop\\Leadify\\Back\\Leadify-Backend\\Leadify.Application\\Leadify.Application.csproj"
+            "E:\\CRM-SASS\\Leadify\\Leadify.Application\\Leadify.Application.csproj": {
+              "projectPath": "E:\\CRM-SASS\\Leadify\\Leadify.Application\\Leadify.Application.csproj"
             },
-            "C:\\Users\\Enzo\\Desktop\\Leadify\\Back\\Leadify-Backend\\Leadify.Infrastructure\\Leadify.Infrastructure.csproj": {
-              "projectPath": "C:\\Users\\Enzo\\Desktop\\Leadify\\Back\\Leadify-Backend\\Leadify.Infrastructure\\Leadify.Infrastructure.csproj"
+            "E:\\CRM-SASS\\Leadify\\Leadify.Infrastructure\\Leadify.Infrastructure.csproj": {
+              "projectPath": "E:\\CRM-SASS\\Leadify\\Leadify.Infrastructure\\Leadify.Infrastructure.csproj"
             }
           }
         }
@@ -2356,7 +2356,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.200/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

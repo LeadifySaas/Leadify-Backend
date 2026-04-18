@@ -21,6 +21,7 @@ namespace Leadify.Infrastructure.Repositories
         public async Task<PagedResult<Remito>> GetPagedAsync(int pageIndex, int pageSize, string? search)
         {
             var query = _context.Remitos
+                .AsNoTracking()
                 .Include(r => r.Cliente)
                 .Include(r => r.Sede)
                 .Include(r => r.CreadoPorUsuario)
@@ -28,20 +29,21 @@ namespace Leadify.Infrastructure.Repositories
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                // Buscamos por número de remito o nombre del cliente
                 query = query.Where(r => r.NumeroRemito.Contains(search) ||
                                          r.Cliente.DNI.Contains(search));
             }
 
             var totalCount = await query.CountAsync();
+
             var items = await query
-                .OrderByDescending(r => r.FechaEmision) // Los últimos remitos primero
+                .OrderByDescending(r => r.FechaEmision)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
             return new PagedResult<Remito> { Items = items, TotalCount = totalCount, PageIndex = pageIndex, PageSize = pageSize };
         }
+
 
         public async Task<Remito?> GetByIdAsync(int id)
         {

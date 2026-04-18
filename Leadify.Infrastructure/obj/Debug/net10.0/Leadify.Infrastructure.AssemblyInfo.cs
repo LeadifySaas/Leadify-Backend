@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Leadify.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5998fc00875b14d47002d3b27b7e0fe0d99f3f63")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1ae893da0d8f275c4fff971e8fc821290a558fb3")]
 [assembly: System.Reflection.AssemblyProductAttribute("Leadify.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Leadify.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
