@@ -59,7 +59,7 @@ namespace Leadify.Infrastructure.Repositories
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // 1. Validar duplicado de Número de Remito (Evita errores de DB feos)
+                // 1. Validar duplicado de Número de Remito (Evita errores de DB)
                 bool existe = await _context.Remitos.AnyAsync(r => r.NumeroRemito == remito.NumeroRemito);
                 if (existe) throw new Exception($"El número de remito {remito.NumeroRemito} ya existe.");
 

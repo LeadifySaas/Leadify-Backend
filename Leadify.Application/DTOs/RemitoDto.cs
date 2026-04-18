@@ -22,6 +22,7 @@ namespace Leadify.Application.DTOs
         public int Id { get; set; }
         public string NumeroRemito { get; set; } = string.Empty;
         public string ClienteNombre { get; set; } = string.Empty;
+        public string ClienteApellido { get; set; }
         public string SedeNombre { get; set; } = string.Empty;
         public DateTime FechaEmision { get; set; }
         public string Estado { get; set; } = string.Empty;

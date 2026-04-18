@@ -32,6 +32,7 @@ namespace Leadify.API.Controllers
                 Id = r.Id,
                 NumeroRemito = r.NumeroRemito,
                 ClienteNombre = r.Cliente?.Nombre ?? "S/D",
+                ClienteApellido = r.Cliente?.Apellido ?? "S/D",
                 SedeNombre = r.Sede?.Nombre ?? "S/D",
                 FechaEmision = r.FechaEmision,
                 Estado = r.Estado,
