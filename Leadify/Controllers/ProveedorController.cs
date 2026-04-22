@@ -1,8 +1,12 @@
 ﻿using Leadify.Application.DTOs;
+using Leadify.Application.Interfaces;
 using Leadify.Domain.Common;
 using Leadify.Domain.Entities;
 using Leadify.Domain.Interfaces;
+using Leadify.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Leadify.API.Controllers
 {
@@ -11,10 +15,14 @@ namespace Leadify.API.Controllers
     public class ProveedoresController : ControllerBase
     {
         private readonly IProveedorRepository _repo;
+        private readonly IFileService _fileService;
+        private readonly IWebHostEnvironment _env;
 
-        public ProveedoresController(IProveedorRepository repo)
+        public ProveedoresController(IProveedorRepository repo, IFileService fileService, IWebHostEnvironment env)
         {
             _repo = repo;
+            _fileService = fileService;
+            _env = env;
         }
 
         // GET: api/proveedores
@@ -148,6 +156,87 @@ namespace Leadify.API.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             await _repo.DeleteAsync(id);
+            return NoContent();
+        }
+
+
+        //------MANEJO DE ARCHIVO ADJUNTO--------------------
+
+        // GET: api/proveedores/{id}/archivos
+        [HttpGet("{id}/archivos")]
+        public async Task<IActionResult> GetArchivos(int id)
+        {
+            var proveedor = await _repo.GetByIdAsync(id);
+            if (proveedor == null) return NotFound();
+
+            var archivos = await _repo.GetArchivosByProveedorId(id);
+
+       
+            return Ok(archivos);
+        }
+
+        // POST: api/proveedores/{id}/archivos
+        [HttpPost("{id}/archivos")]
+        public async Task<IActionResult> SubirAdjunto(int id, IFormFile file)
+        {
+            var proveedor = await _repo.GetByIdAsync(id);
+            if (proveedor == null) return NotFound();
+
+            try
+            {
+                // El servicio se encarga de crear la carpeta y guardar (ahora en wwwroot/adjuntos)
+                string subCarpeta = $"proveedores/{id}";
+                string urlRelativa = await _fileService.GuardarArchivo(file, subCarpeta);
+
+                var archivo = new ProveedorArchivo
+                {
+                    ProveedorId = id,
+                    NombreOriginal = file.FileName,
+                    UrlRelativa = urlRelativa,
+                    FechaSubida = DateTime.Now
+                };
+
+                await _repo.SaveArchivoAsync(archivo);
+                return Ok(archivo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al guardar el archivo: {ex.Message}");
+            }
+        }
+
+        [HttpGet("descargar-archivo/{archivoId}")]
+        public async Task<IActionResult> DescargarArchivo(int archivoId, [FromQuery] bool? verEnNavegador = false)
+        {
+            var archivo = await _repo.GetArchivoById(archivoId);
+            if (archivo == null) return NotFound("Archivo no encontrado.");
+
+            
+            var path = Path.Combine(_env.WebRootPath, archivo.UrlRelativa.TrimStart('/'));
+
+            if (!System.IO.File.Exists(path)) return NotFound("Archivo físico no encontrado.");
+
+            var provider = new FileExtensionContentTypeProvider();
+            provider.TryGetContentType(path, out var contentType);
+            contentType ??= "application/octet-stream";
+
+            var disposition = (verEnNavegador == true) ? "inline" : "attachment";
+            Response.Headers.Add("Content-Disposition", $"{disposition}; filename=\"{archivo.NombreOriginal}\"");
+
+            return PhysicalFile(path, contentType);
+        }
+
+        // DELETE: api/proveedores/archivos/{archivoId}
+        [HttpDelete("archivos/{archivoId}")]
+        public async Task<IActionResult> EliminarArchivo(int archivoId)
+        {
+            var archivo = await _repo.GetArchivoById(archivoId);
+            if (archivo == null) return NotFound();
+
+            archivo.Activo = false;
+
+            await _repo.UpdateArchivo(archivo); // Necesitarías crear este método en tu repo
+
             return NoContent();
         }
     }

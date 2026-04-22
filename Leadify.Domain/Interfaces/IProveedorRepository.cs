@@ -14,11 +14,15 @@ namespace Leadify.Domain.Interfaces
         Task<Proveedor> CreateAsync(Proveedor cliente);
         Task UpdateAsync(Proveedor cliente);
         Task DeleteAsync(int id);
+
+        Task UpdateArchivo(ProveedorArchivo cliente);
         Task<bool> ExisteCuitAsync(string cuit);
         Task<bool> ExisteEmailAsync(string mail);
-
-
-       
-
+        Task SaveArchivoAsync(ProveedorArchivo archivo);
+        Task<List<ProveedorArchivo>> GetArchivosByProveedorId(int proveedorId);
+        Task<ProveedorArchivo?> GetArchivoById(int archivoId);
+        Task DeleteArchivo(ProveedorArchivo archivo);
     }
+
+
 }

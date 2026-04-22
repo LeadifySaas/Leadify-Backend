@@ -14,5 +14,7 @@ namespace Leadify.Domain.Entities
         public string? Telefono { get; set; }
         public string? Rubro { get; set; }
         public bool Activo { get; set; } = true;
+
+        public List<ProveedorArchivo> Archivos { get; set; } = new();
     }
 }

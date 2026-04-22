@@ -27,6 +27,8 @@ namespace Leadify.Infrastructure.Data
 
         public DbSet<Proveedor> Proveedores { get; set; }
 
+        public DbSet<ProveedorArchivo> ProveedorArchivos { get; set; }
+
 
 
 
@@ -102,5 +104,7 @@ namespace Leadify.Infrastructure.Data
             }
             return base.SaveChangesAsync(cancellationToken);
         }
+
+
     }
 }

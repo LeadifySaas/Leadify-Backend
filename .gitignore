@@ -516,4 +516,12 @@ appsettings.Local.json
 ## [SISTEMA]
 .DS_Store
 Thumbs.db
+
 *.cache
+# Ignorar el contenido de la carpeta wwwroot
+wwwroot/*
+# Pero NO ignorar el archivo .keep (si lo usas para mantener la carpeta en el repo)
+!wwwroot/.keep
+Leadify/wwwroot/adjuntos/proveedores/18/2f5b99a8-9467-43e6-b5fc-30b452be969a.pdf
+
+Leadify/wwwroot/adjuntos/proveedores/18/8a615304-80fe-40b8-aa01-995f3cab3e40.avif

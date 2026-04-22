@@ -86,5 +86,35 @@ namespace Leadify.Infrastructure.Repositories
             if (string.IsNullOrEmpty(email)) return false;
             return await _context.Proveedores.AnyAsync(p => p.Email.ToLower() == email.ToLower());
         }
+
+        public async Task<List<ProveedorArchivo>> GetArchivosByProveedorId(int proveedorId)
+        {
+            return await _context.ProveedorArchivos
+            .Where(a => a.ProveedorId == proveedorId && a.Activo == true) 
+            .ToListAsync();
+        }
+
+        public async Task<ProveedorArchivo?> GetArchivoById(int archivoId)
+        {
+            return await _context.ProveedorArchivos
+                .FirstOrDefaultAsync(a => a.Id == archivoId);
+        }
+
+        public async Task SaveArchivoAsync(ProveedorArchivo archivo)
+        {
+            _context.ProveedorArchivos.Add(archivo);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteArchivo(ProveedorArchivo archivo)
+        {
+            _context.ProveedorArchivos.Remove(archivo);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateArchivo(ProveedorArchivo archivo) { 
+            _context.ProveedorArchivos.Update(archivo);
+            await _context.SaveChangesAsync();
+        }
     }
 }
