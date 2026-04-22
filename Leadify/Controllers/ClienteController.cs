@@ -16,6 +16,7 @@ namespace Leadify.API.Controllers
         {
             _clienteRepo = clienteRepo;
         }
+    
 
         // GET: api/clientes?page=1&size=25&search=...
         [HttpGet]

@@ -1,4 +1,6 @@
-﻿using Leadify.Domain.Entities;
+﻿using Leadify.Domain.Common;
+using Leadify.Domain.Entities;
+using Leadify.Infrastructure.Configurations;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -22,6 +24,10 @@ namespace Leadify.Infrastructure.Data
         public DbSet<Sede> Sedes { get; set; }
         public DbSet<Empresa> Empresas { get; set; }
         public DbSet<Contacto> Contactos { get; set; }
+
+        public DbSet<Proveedor> Proveedores { get; set; }
+
+        public DbSet<ProveedorArchivo> ProveedorArchivos { get; set; }
 
 
 
@@ -76,7 +82,29 @@ namespace Leadify.Infrastructure.Data
                 .Property(a => a.StockActual)
                 .HasPrecision(18, 2);
 
+            // --- Configuración de Proveedor ---
+            modelBuilder.ApplyConfiguration(new ProveedorConfiguration());
+
 
         }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entry.Entity.FechaCreacion = DateTime.Now;
+                        break;
+                    case EntityState.Modified:
+                        entry.Entity.FechaActualizacion = DateTime.Now;
+                        break;
+                }
+            }
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+
     }
 }

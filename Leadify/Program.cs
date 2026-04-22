@@ -8,7 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
 using System.Text;
+using Microsoft.Extensions.FileProviders;
 QuestPDF.Settings.License = LicenseType.Community;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +64,7 @@ builder.Services.AddControllers()
 
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 builder.Services.AddScoped<IArticuloRepository, ArticuloRepository>();
 builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
@@ -71,6 +74,7 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<IContactoRepository, ContactoRepository>();
 //builder.Services.AddScoped<IRemitoItemRepository, RemitoRepository>();
+builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -81,6 +85,22 @@ builder.Services.AddScoped<IRemitoReportService, Leadify.Infrastructure.Reports.
 
 
 var app = builder.Build();
+
+// 1. Definir la ruta
+string storagePath = Path.Combine(builder.Environment.ContentRootPath, "Storage");
+
+// 2. Crear la carpeta si no existe físicamente
+if (!Directory.Exists(storagePath))
+{
+    Directory.CreateDirectory(storagePath);
+}
+
+// 3. Ahora sí, registrar el proveedor de archivos
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(storagePath),
+    RequestPath = "/uploads"
+});
 
 if (app.Environment.IsDevelopment())
 {
