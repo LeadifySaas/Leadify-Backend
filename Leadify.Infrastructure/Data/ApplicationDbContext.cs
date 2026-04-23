@@ -18,6 +18,8 @@ namespace Leadify.Infrastructure.Data
         public DbSet<Menu> Menus { get; set; }
         public DbSet<RolMenu> RolMenus { get; set; }
         public DbSet<Articulo> Articulos { get; set; }
+
+        public DbSet<ArticulosInternos> ArticulosInternos { get; set; }
         public DbSet<Remito> Remitos { get; set; }
         public DbSet<RemitoItem> RemitoItems { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
