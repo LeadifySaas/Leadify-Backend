@@ -44,6 +44,7 @@ namespace Leadify.API.Controllers
                 Descripcion = dto.Descripcion,
                 UnidadMedida = dto.UnidadMedida,
                 PrecioVenta = dto.PrecioVenta,
+                PrecioCompra = dto.PrecioCompra,
                 StockActual = dto.StockActual
             };
 
@@ -61,6 +62,7 @@ namespace Leadify.API.Controllers
             articuloExistente.Descripcion = dto.Descripcion;
             articuloExistente.UnidadMedida = dto.UnidadMedida;
             articuloExistente.PrecioVenta = dto.PrecioVenta;
+            articuloExistente.PrecioCompra = dto.PrecioCompra;
             articuloExistente.StockActual = dto.StockActual;
             articuloExistente.Activo = dto.Activo;
 

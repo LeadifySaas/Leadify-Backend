@@ -22,8 +22,8 @@ namespace Leadify.Infrastructure.Configurations
             builder.Property(p => p.Rubro).HasMaxLength(100);
 
             // Si quisieras configurar las fechas explícitamente (opcional)
-            builder.Property(p => p.FechaCreacion).IsRequired();
-            builder.Property(p => p.FechaActualizacion).IsRequired(false);
+            builder.Property(p => p.CreatedAt).IsRequired();
+            builder.Property(p => p.UpdatedAt).IsRequired(false);
         }
     }
 }

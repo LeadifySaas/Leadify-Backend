@@ -41,7 +41,7 @@ namespace Leadify.API.Controllers
                 Telefono = p.Telefono,
                 Rubro = p.Rubro,
                 Activo = p.Activo,
-                FechaCreacion = p.FechaCreacion
+                CreatedAt = p.CreatedAt
             }).ToList();
 
             // Devolvemos el mismo formato que espera tu frontend pero con los DTOs
@@ -71,7 +71,7 @@ namespace Leadify.API.Controllers
                 Telefono = p.Telefono,
                 Rubro = p.Rubro,
                 Activo = p.Activo,
-                FechaCreacion = p.FechaCreacion
+                CreatedAt = p.CreatedAt
             };
 
             return Ok(dto);
@@ -99,7 +99,7 @@ namespace Leadify.API.Controllers
                 Telefono = dto.Telefono,
                 Rubro = dto.Rubro,
                 Activo = true,
-                FechaCreacion = DateTime.Now
+                CreatedAt = DateTime.Now
             };
 
             await _repo.CreateAsync(proveedor);
@@ -114,7 +114,7 @@ namespace Leadify.API.Controllers
                 Telefono = proveedor.Telefono,
                 Rubro = proveedor.Rubro,
                 Activo = proveedor.Activo,
-                FechaCreacion = proveedor.FechaCreacion
+                CreatedAt = proveedor.CreatedAt
             };
 
             // Retornamos el DTO

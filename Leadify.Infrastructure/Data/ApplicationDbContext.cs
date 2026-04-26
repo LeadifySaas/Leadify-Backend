@@ -97,10 +97,10 @@ namespace Leadify.Infrastructure.Data
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        entry.Entity.FechaCreacion = DateTime.Now;
+                        entry.Entity.CreatedAt = DateTime.UtcNow;
                         break;
                     case EntityState.Modified:
-                        entry.Entity.FechaActualizacion = DateTime.Now;
+                        entry.Entity.UpdatedAt = DateTime.UtcNow;
                         break;
                 }
             }

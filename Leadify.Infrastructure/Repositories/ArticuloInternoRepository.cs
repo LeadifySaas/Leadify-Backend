@@ -74,7 +74,7 @@ namespace Leadify.Infrastructure.Repositories
             if (articulo != null)
             {
                 articulo.Activo = false; 
-                articulo.FechaActualizacion= DateTime.Now;
+                articulo.UpdatedAt= DateTime.Now;
                 await _context.SaveChangesAsync();
             }
         }
