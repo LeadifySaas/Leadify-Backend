@@ -13,6 +13,6 @@ namespace Leadify.Application.DTOs
         public string? Telefono { get; set; }
         public string? Rubro { get; set; }
         public bool Activo { get; set; }
-        public DateTime FechaCreacion { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
