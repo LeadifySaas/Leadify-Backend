@@ -17,7 +17,7 @@ namespace Leadify.Application.DTOs
         [Required]
         [MinLength(8)]
         public string Password { get; set; } = string.Empty;
-        public int RolId { get; set; }
+        public int PerfilId { get; set; }
 
         public string? Telefono { get; set; }
         public string? FotoPerfil { get; set; }

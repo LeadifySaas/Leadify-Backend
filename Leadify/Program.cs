@@ -77,6 +77,11 @@ builder.Services.AddScoped<IContactoRepository, ContactoRepository>();
 //builder.Services.AddScoped<IRemitoItemRepository, RemitoRepository>();
 builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
 
+builder.Services.AddScoped<IPerfilesRepository, PerfilesRepository>();
+
+
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

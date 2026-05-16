@@ -24,7 +24,7 @@ namespace Leadify.Infrastructure.Services
         {
             // Buscamos usuario con su Rol
             var usuario = await _context.Usuarios
-                .Include(u => u.Rol)
+                .Include(u => u.Perfil)
                 .FirstOrDefaultAsync(x => x.Email == email);
 
             if (usuario == null) return null;
@@ -49,8 +49,8 @@ namespace Leadify.Infrastructure.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
                 new Claim(ClaimTypes.Email, usuario.Email),
-                new Claim(ClaimTypes.Role, usuario.Rol?.Nombre ?? ""),
-                new Claim("RolId", usuario.RolId.ToString())
+                new Claim(ClaimTypes.Role, usuario.Perfil?.Nombre ?? ""),
+                new Claim("RolId", usuario.PerfilId.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"]!));

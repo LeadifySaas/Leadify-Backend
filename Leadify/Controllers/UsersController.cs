@@ -25,17 +25,13 @@ namespace Leadify.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<Usuario>> Register(UserRegisterDto dto)
         {
-            
 
-            // 1. Validar email
             if (await _context.Usuarios.AnyAsync(x => x.Email == dto.Email))
                 return BadRequest("El email ya está registrado");
 
-            // 2.Validar que el Rol exista 
-            if (!await _context.Roles.AnyAsync(r => r.Id == dto.RolId))
+            if (!await _context.Perfiles.AnyAsync(r => r.IdPerfil == dto.PerfilId))
                 return BadRequest("El rol seleccionado no es válido en la base de datos.");
 
-            // 3. Validación de contraseña 
             if (dto.Password.Length < 8 || !dto.Password.Any(char.IsUpper) || !dto.Password.Any(char.IsDigit))
             {
                 return BadRequest("La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.");
@@ -48,7 +44,7 @@ namespace Leadify.Controllers
                 Nombre = dto.Nombre,
                 Apellido = dto.Apellido,
                 Email = dto.Email,
-                RolId = dto.RolId,
+                PerfilId = dto.PerfilId,
                 Activo = true,
                 FechaCreacion = DateTime.Now,
                 Telefono = dto.Telefono,
@@ -80,7 +76,7 @@ namespace Leadify.Controllers
         public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers([FromQuery] string search = "")
         {
             var query = _context.Usuarios
-                .Include(u => u.Rol)
+                .Include(u => u.Perfil)
                 .AsQueryable();
 
             // 1. Lógica del Buscador
@@ -101,7 +97,7 @@ namespace Leadify.Controllers
                     Nombre = u.Nombre,
                     Apellido = u.Apellido,
                     Email = u.Email,
-                    NombreRol = u.Rol.Nombre,
+                    NombreRol = u.Perfil.Nombre,
                     Activo = u.Activo,
                     Telefono = u.Telefono,
                     AreaSector = u.AreaSector
@@ -123,7 +119,7 @@ namespace Leadify.Controllers
             usuarioDb.Nombre = dto.Nombre;
             usuarioDb.Apellido = dto.Apellido;
             usuarioDb.Email = dto.Email; 
-            usuarioDb.RolId = dto.RolId;
+            usuarioDb.PerfilId = dto.PerfilId;
             usuarioDb.Activo = dto.Activo;
 
             // Campos nuevos del protocolo SQL
@@ -166,7 +162,7 @@ namespace Leadify.Controllers
         {
            
             var usuario = await _context.Usuarios
-                .Include(u => u.Rol) 
+                .Include(u => u.Perfil) 
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (usuario == null) return NotFound();

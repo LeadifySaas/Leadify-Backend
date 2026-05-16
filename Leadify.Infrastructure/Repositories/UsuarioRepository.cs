@@ -23,7 +23,7 @@ namespace Leadify.Infrastructure.Repositories
         public async Task<PagedResult<Usuario>> GetPagedAsync(int pageIndex, int pageSize, string? search)
         {
             var query = _context.Usuarios
-                .Include(u => u.Rol) // Incluimos el rol para mostrar el nombre en la tabla
+                .Include(u => u.Perfil) // Incluimos el rol para mostrar el nombre en la tabla
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -53,7 +53,7 @@ namespace Leadify.Infrastructure.Repositories
         public async Task<Usuario?> GetByIdAsync(int id)
         {
             return await _context.Usuarios
-                .Include(u => u.Rol)
+                .Include(u => u.Perfil)
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
