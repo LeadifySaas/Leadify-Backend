@@ -5,7 +5,8 @@ using Leadify.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Leadify.Infrastructure.Repositories
 {
@@ -20,26 +21,21 @@ namespace Leadify.Infrastructure.Repositories
 
         public async Task<PagedResult<Articulo>> GetPagedAsync(int pageIndex, int pageSize, string? search)
         {
-            var query = _context.Articulos
-                .AsQueryable();
+            var query = _context.Articulos.AsQueryable();
 
-            // Filtro de búsqueda (Buscamos por Razón Social o CUIT)
             if (!string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(c => c.Nombre.Contains(search) || c.Codigo.Contains(search));
             }
 
-            // 1. Contamos el total bajo ese filtro
             var totalCount = await query.CountAsync();
 
-            // 2. Aplicamos paginación
             var items = await query
                 .OrderBy(c => c.Nombre)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            // 3. Devolvemos el envoltorio
             return new PagedResult<Articulo>
             {
                 Items = items,
@@ -73,7 +69,8 @@ namespace Leadify.Infrastructure.Repositories
             var articulo = await _context.Articulos.FindAsync(id);
             if (articulo != null)
             {
-                articulo.Activo = false; 
+               
+                articulo.Activo = false;
                 articulo.UpdatedAt = DateTime.Now;
                 await _context.SaveChangesAsync();
             }
@@ -83,7 +80,5 @@ namespace Leadify.Infrastructure.Repositories
         {
             return await _context.Articulos.AnyAsync(c => c.Codigo == codigo);
         }
-
-        
     }
 }

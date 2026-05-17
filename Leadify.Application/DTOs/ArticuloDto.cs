@@ -14,5 +14,7 @@ namespace Leadify.Application.DTOs
         public decimal PrecioVenta { get; set; }
         public decimal StockActual { get; set; }
         public bool Activo { get; set; }
+        public string? ImagenUrl { get; set; }
+
     }
 }

@@ -525,3 +525,20 @@ wwwroot/*
 Leadify/wwwroot/adjuntos/proveedores/18/2f5b99a8-9467-43e6-b5fc-30b452be969a.pdf
 
 Leadify/wwwroot/adjuntos/proveedores/18/8a615304-80fe-40b8-aa01-995f3cab3e40.avif
+
+Leadify/wwwroot/adjuntos/articulos/
+
+Leadify/
+
+*.csproj
+/Leadify/.vs/Leadify/DesignTimeBuild/.dtbcache.v2
+/Leadify/obj/Debug/net10.0/Leadify.Api.AssemblyInfo.cs
+/Leadify/obj/Debug/net10.0/rpswa.dswa.cache.json
+/Leadify/Leadify.Api.csproj
+/Leadify/appsettings.json
+/Leadify.Application/obj/Debug/net10.0/Leadify.Application.AssemblyInfo.cs
+/Leadify.Domain/obj/Debug/net10.0/Leadify.Domain.AssemblyInfo.cs
+/Leadify.Infrastructure/obj/Debug/net10.0/Leadify.Infrastructure.AssemblyInfo.cs
+/Leadify.Infrastructure/obj/Debug/net10.0/Leadify.Infrastructure.AssemblyInfoInputs.cache
+/Leadify.Infrastructure/obj/Debug/net10.0/Leadify.Infrastructure.csproj.AssemblyReference.cache
+/Leadify.Infrastructure/obj/project.assets.json

@@ -1,11 +1,7 @@
 ﻿using Leadify.Application.DTOs;
-using Leadify.Application.Interfaces;
 using Leadify.Domain.Entities;
 using Leadify.Domain.Interfaces;
-using Leadify.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Leadify.Infrastructure.Data;
 
 namespace Leadify.API.Controllers
 {
