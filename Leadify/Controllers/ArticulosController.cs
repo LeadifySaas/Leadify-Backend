@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Leadify.Application.DTOs;
+﻿using Leadify.Application.DTOs;
+using Leadify.Application.Interfaces;
 using Leadify.Domain.Entities;
 using Leadify.Domain.Interfaces;
+using Leadify.Infrastructure.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Leadify.API.Controllers
 {
@@ -10,10 +12,12 @@ namespace Leadify.API.Controllers
     public class ArticulosController : ControllerBase
     {
         private readonly IArticuloRepository _articuloRepo;
+        private readonly IFileService _fileService;
 
-        public ArticulosController(IArticuloRepository articuloRepo)
+        public ArticulosController(IArticuloRepository articuloRepo, IFileService fileService)
         {
             _articuloRepo = articuloRepo;
+            _fileService = fileService;
         }
 
         [HttpGet]
@@ -72,6 +76,50 @@ namespace Leadify.API.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             await _articuloRepo.DeleteAsync(id);
+            return NoContent();
+        }
+
+        // POST: api/articulos/{id}/imagen
+        [HttpPost("{idArticulo}/imagen")]
+        public async Task<IActionResult> SubirImagen(int idArticulo, IFormFile file)
+        {
+            var articulo = await _articuloRepo.GetByIdAsync(idArticulo);
+            if (articulo == null) return NotFound("Artículo no encontrado.");
+
+            try
+            {
+                if (!string.IsNullOrEmpty(articulo.ImagenUrl))
+                {
+                    await _fileService.EliminarArchivo(articulo.ImagenUrl);
+                }
+                string urlRelativa = await _fileService.GuardarArchivo(file, "articulos");
+
+                articulo.ImagenUrl = urlRelativa;
+                await _articuloRepo.UpdateAsync(articulo);
+
+                return Ok(new { ImagenUrl = articulo.ImagenUrl });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error al guardar la imagen: {ex.Message}");
+            }
+        }
+
+        // DELETE: api/articulos/{id}/imagen
+        [HttpDelete("{id}/imagen")]
+        public async Task<IActionResult> EliminarImagen(int id)
+        {
+            var articulo = await _articuloRepo.GetByIdAsync(id);
+            if (articulo == null) return NotFound();
+
+            if (!string.IsNullOrEmpty(articulo.ImagenUrl))
+            {
+                await _fileService.EliminarArchivo(articulo.ImagenUrl);
+
+                articulo.ImagenUrl = null;
+                await _articuloRepo.UpdateAsync(articulo);
+            }
+
             return NoContent();
         }
     }

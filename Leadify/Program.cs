@@ -102,7 +102,9 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = string.Empty; 
     });
 }
+app.UseRouting();
 
+app.UseStaticFiles();
 app.UseCors("AllowReactApp");
 
 app.UseHttpsRedirection();

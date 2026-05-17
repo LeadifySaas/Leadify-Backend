@@ -11,6 +11,7 @@ namespace Leadify.Domain.Entities
         public string Nombre { get; set; } = string.Empty;
         public string? Descripcion { get; set; }
         public string UnidadMedida { get; set; } = "Unidades";
+        public string? ImagenUrl { get; set; }
 
         public decimal PrecioVenta { get; set; }
         public decimal StockActual { get; set; }
